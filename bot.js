@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const Twilio = require("twilio");
 const axios = require("axios");
 const { ethers } = require("ethers"); // Add this line to import ethers
+const { formatVolume } = require("./utils/utils");
 require("dotenv").config();
 
 const app = express();
@@ -44,10 +45,20 @@ app.post("/webhook", async (req, res) => {
         volume,
         liquidity,
         chain,
-        marketCap,
-        volumeUsd24h,
+        fdv,
+        priceChangeh24,
+        priceChangeh6,
+        priceChangeh1,
+        priceChangem5,
+        dexId,
       } = tokenDetails;
-      responseMessage = `Token Details:\nName: ${name}\nSymbol: ${symbol}\nPrice: ${price}\nVolume: ${volume}\nLiquidity: ${liquidity}\nChain: ${chain}\nMarket Cap: ${marketCap}\nVolume 24h: ${volumeUsd24h}`;
+      responseMessage = `Token Details:\n ✨Name: ${name}\n 👓Symbol: ${symbol}\n 💰Price: ${price}\n 📊Volume: $${formatVolume(
+        volume
+      )}\n 💦Liquidity: $${formatVolume(
+        liquidity
+      )}\n 🔗Chain: ${chain}\n 💎FDV: $${formatVolume(
+        fdv
+      )}\n 📈Price Change 24h: ${priceChangeh24}% 6h: ${priceChangeh6}% 1h: ${priceChangeh1}% 5m: ${priceChangem5}%\n 🚨Dex: ${dexId}`;
     } catch (error) {
       responseMessage = `Error fetching token details: ${error.message}`;
     }

@@ -10,12 +10,18 @@ async function fetchTokenDetails(tokenAddress) {
     return {
       name: tokenDetails.pairs[0].baseToken.name,
       symbol: tokenDetails.pairs[0].baseToken.symbol,
+      fdv: tokenDetails.pairs[0].fdv,
       price: tokenDetails.pairs[0].priceUsd,
-      volume: tokenDetails.pairs[0].volumeUsd24h,
+      volume: tokenDetails.pairs[0].volume.h24,
       liquidity: tokenDetails.pairs[0].liquidity.usd,
       chain: tokenDetails.pairs[0].chainId,
-      marketCap: tokenDetails.pairs[0].marketCapUsd,
-      volumeUsd24h: tokenDetails.pairs[0].volume.h24,
+    //   marketCap: tokenDetails.pairs[0].marketCapUsd,
+      priceChangeh24: tokenDetails.pairs[0].priceChange.h24,
+      priceChangeh6: tokenDetails.pairs[0].priceChange.h6,
+      priceChangeh1: tokenDetails.pairs[0].priceChange.h1,
+      priceChangem5: tokenDetails.pairs[0].priceChange.m5,
+      dexId: tokenDetails.pairs[0].dexId,
+      fdv: tokenDetails.pairs[0].fdv,
     };
   } catch (error) {
     console.error("Error fetching token details:", error);
