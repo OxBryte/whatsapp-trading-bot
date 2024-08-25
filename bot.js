@@ -4,7 +4,7 @@ const Twilio = require("twilio");
 const axios = require("axios");
 const { ethers } = require("ethers"); // Add this line to import ethers
 require("dotenv").config();
-const { formatVolume } = require("./utils/utils");
+const { formatVolume, formatDate } = require("./utils/utils");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -51,6 +51,7 @@ app.post("/webhook", async (req, res) => {
         priceChangeh1,
         priceChangem5,
         dexId,
+        date,
       } = tokenDetails;
       responseMessage = `Token Details:\n ✨Name: ${name}\n 👓Symbol: ${symbol}\n 💰Price: ${price}\n 📊Volume: $${formatVolume(
         volume
@@ -58,7 +59,9 @@ app.post("/webhook", async (req, res) => {
         liquidity
       )}\n 🔗Chain: ${chain}\n 💎FDV: $${formatVolume(
         fdv
-      )}\n 📈Price Change 24h: ${priceChangeh24}% 6h: ${priceChangeh6}% 1h: ${priceChangeh1}% 5m: ${priceChangem5}%\n 🚨Dex: ${dexId} \n\nWhat would you like to do next?\n1. Get more details\n2. Buy Token\n3. Sell Token\nReply with the number of your choice.`;
+      )}\n 📈Price Change 24h: ${priceChangeh24}% 6h: ${priceChangeh6}% 1h: ${priceChangeh1}% 5m: ${priceChangem5}%\n 🚨Dex: ${dexId} \n 📅Age: ${formatDate(
+        date
+      )} \n\nWhat would you like to do next?\n1. Get more details\n2. Buy Token\n3. Sell Token\nReply with the number of your choice.`;
     } catch (error) {
       responseMessage = `Error fetching token details: ${error.message}`;
     }

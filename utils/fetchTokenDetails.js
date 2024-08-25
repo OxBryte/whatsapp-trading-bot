@@ -22,6 +22,7 @@ async function fetchTokenDetails(tokenAddress) {
       priceChangem5: tokenDetails.pairs[0].priceChange.m5,
       dexId: tokenDetails.pairs[0].dexId,
       fdv: tokenDetails.pairs[0].fdv,
+      date: tokenDetails.pairs[0].pairCreatedAt,
     };
   } catch (error) {
     console.error("Error fetching token details:", error);

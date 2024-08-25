@@ -4,4 +4,9 @@ const formatVolume = (volume) => {
     : `${(volume / 1e3).toFixed(1)}K`;
 };
 
-module.exports = { formatVolume };
+const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // Adjust options as needed for formatting
+  };
+
+module.exports = { formatVolume, formatDate };
