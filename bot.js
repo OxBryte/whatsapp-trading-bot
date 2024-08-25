@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const Twilio = require("twilio");
 const axios = require("axios");
 const { ethers } = require("ethers"); // Add this line to import ethers
-const { formatVolume } = require("./utils/utils");
 require("dotenv").config();
+const { formatVolume } = require("./utils/utils");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
