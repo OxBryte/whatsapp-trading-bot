@@ -58,7 +58,7 @@ app.post("/webhook", async (req, res) => {
         liquidity
       )}\n 🔗Chain: ${chain}\n 💎FDV: $${formatVolume(
         fdv
-      )}\n 📈Price Change 24h: ${priceChangeh24}% 6h: ${priceChangeh6}% 1h: ${priceChangeh1}% 5m: ${priceChangem5}%\n 🚨Dex: ${dexId}`;
+      )}\n 📈Price Change 24h: ${priceChangeh24}% 6h: ${priceChangeh6}% 1h: ${priceChangeh1}% 5m: ${priceChangem5}%\n 🚨Dex: ${dexId} \n\nWhat would you like to do next?\n1. Get more details\n2. Buy Token\n3. Sell Token\nReply with the number of your choice.`;
     } catch (error) {
       responseMessage = `Error fetching token details: ${error.message}`;
     }
