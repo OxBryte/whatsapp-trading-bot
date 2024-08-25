@@ -8,6 +8,11 @@ async function fetchTokenDetails(tokenAddress) {
       `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`
     );
     const tokenDetails = response.data;
+    // check if the token is on the solana chain
+    const solanaChainId = "solana";
+    if (tokenDetails.pairs[0].chainId !== solanaChainId) {
+      throw new Error("Token does not belong to the Solana chain.");
+    }
 
     return {
       name: tokenDetails.pairs[0].baseToken.name,
@@ -17,7 +22,6 @@ async function fetchTokenDetails(tokenAddress) {
       volume: tokenDetails.pairs[0].volume.h24,
       liquidity: tokenDetails.pairs[0].liquidity.usd,
       chain: tokenDetails.pairs[0].chainId,
-      //   marketCap: tokenDetails.pairs[0].marketCapUsd,
       priceChangeh24: tokenDetails.pairs[0].priceChange.h24,
       priceChangeh6: tokenDetails.pairs[0].priceChange.h6,
       priceChangeh1: tokenDetails.pairs[0].priceChange.h1,
@@ -28,7 +32,7 @@ async function fetchTokenDetails(tokenAddress) {
     };
   } catch (error) {
     console.error("Error fetching token details:", error);
-    throw new Error("Failed to fetch token details");
+    throw error;
   }
 }
 

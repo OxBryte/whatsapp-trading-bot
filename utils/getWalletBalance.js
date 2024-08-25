@@ -12,7 +12,6 @@ async function getWalletBalance(walletAddress) {
   try {
     const publicKey = new solanaWeb3.PublicKey(walletAddress);
     const balance = await connection.getBalance(publicKey);
-    console.log(`Wallet balance: ${balance / solanaWeb3.LAMPORTS_PER_SOL} SOL`);
     return balance / solanaWeb3.LAMPORTS_PER_SOL;
   } catch (error) {
     console.error("Error fetching wallet balance:", error);

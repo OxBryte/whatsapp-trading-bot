@@ -1,20 +1,16 @@
 // Save the wallet to the database
 
 const Wallet = require("../models/wallet");
-const getWalletBalance = require("./getWalletBalance");
 
-const createNewWallet = async (userId, wallet) => {
-  const publicKey = wallet.publicKey.toString();
-  const balance = await getWalletBalance(wallet.publicKey);
-
+const newWallet = (userId, wallet) => {
   const newWallet = new Wallet({
     userId: userId,
-    publicKey: publicKey,
+    publicKey: wallet.publicKey.toString(),
     secretKey: JSON.stringify(Array.from(wallet.secretKey)),
-    balance: balance,
+    balance: 0,
   });
 
   return newWallet;
 };
 
-module.exports = createNewWallet;
+module.exports = newWallet;

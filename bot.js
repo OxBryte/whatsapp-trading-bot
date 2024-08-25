@@ -10,7 +10,7 @@ const { formatVolume, formatDate } = require("./utils/utils");
 const { default: mongoose } = require("mongoose");
 const Wallet = require("./models/wallet");
 const getWalletBalance = require("./utils/getWalletBalance");
-const createNewWallet = require("./utils/newWallet");
+const newWallet = require("./utils/newWallet");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -55,8 +55,7 @@ app.post("/webhook", async (req, res) => {
     wallet = Keypair.generate(); // Create a new Solana wallet
     // wallet = ethers.Wallet.createRandom(); // Create a new evm wallet
     // responseMessage = `Wallet created! Address: \n\n${wallet.address}\nPrivate Key: ${wallet.privateKey}`; // for evm
-    const newWalletInstance = createNewWallet(userId, wallet);
-    await newWalletInstance
+    await newWallet(userId, wallet)
       .save()
       .then(() => {
         responseMessage = `Wallet created! Address: \n\n${wallet.publicKey.toString()}\nPrivate Key: ${wallet.secretKey.toString()}`; // for solana
@@ -69,7 +68,8 @@ app.post("/webhook", async (req, res) => {
     const walletData = await Wallet.findOne({ userId: userId });
     if (walletData) {
       walletAddress = walletData.publicKey;
-      responseMessage = `Wallet address: ${walletAddress}`;
+      const balance = await getWalletBalance(walletAddress);
+      responseMessage = `Wallet address: ${walletAddress} \n Balance: ${balance} SOL`;
     } else {
       responseMessage = `No wallet found. Please create a wallet first by prompting "create"`;
     }
@@ -81,7 +81,10 @@ app.post("/webhook", async (req, res) => {
       try {
         walletAddress = walletData.publicKey;
         const balance = await getWalletBalance(walletAddress);
-        responseMessage = `Wallet balance: ${balance} SOL`;
+        responseMessage =
+          balance === 0
+            ? "Get some fund in your fucking bag!!"
+            : `Wallet balance: ${balance} SOL`;
       } catch (error) {
         responseMessage = `Error fetching balance: ${error.message}`;
       }
@@ -118,11 +121,11 @@ app.post("/webhook", async (req, res) => {
         date
       )} \n\nWhat would you like to do next?\n1. Get more details\n2. Buy Token\n3. Sell Token\nReply with the number of your choice.`;
     } catch (error) {
-      responseMessage = `Error fetching token details: ${error.message}`;
+      responseMessage = `${error.message}`;
     }
   } else {
     responseMessage =
-      'Unknown command. Please use "create", "token <token address>", "balance", or "wallet".';
+      'Unknown command. Please use \n"create", \n"token <token address>", \n"balance", \n"wallet".';
   }
 
   // Send a response back to the user
