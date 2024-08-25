@@ -1,12 +1,14 @@
+// this snippet is used to fetch the token details
+
 const axios = require("axios");
 
 async function fetchTokenDetails(tokenAddress) {
   try {
-    const response = await axios.get(`https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`);
+    const response = await axios.get(
+      `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`
+    );
     const tokenDetails = response.data;
 
-    console.log(tokenDetails);
-    // Display token details
     return {
       name: tokenDetails.pairs[0].baseToken.name,
       symbol: tokenDetails.pairs[0].baseToken.symbol,
@@ -15,7 +17,7 @@ async function fetchTokenDetails(tokenAddress) {
       volume: tokenDetails.pairs[0].volume.h24,
       liquidity: tokenDetails.pairs[0].liquidity.usd,
       chain: tokenDetails.pairs[0].chainId,
-    //   marketCap: tokenDetails.pairs[0].marketCapUsd,
+      //   marketCap: tokenDetails.pairs[0].marketCapUsd,
       priceChangeh24: tokenDetails.pairs[0].priceChange.h24,
       priceChangeh6: tokenDetails.pairs[0].priceChange.h6,
       priceChangeh1: tokenDetails.pairs[0].priceChange.h1,

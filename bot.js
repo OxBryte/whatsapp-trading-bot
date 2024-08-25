@@ -3,8 +3,14 @@ const bodyParser = require("body-parser");
 const Twilio = require("twilio");
 const axios = require("axios");
 const { ethers } = require("ethers"); // Add this line to import ethers
+const { Connection, Keypair } = require("@solana/web3.js"); // Import Solana libraries
+const solanaWeb3 = require("@solana/web3.js");
 require("dotenv").config();
 const { formatVolume, formatDate } = require("./utils/utils");
+const { default: mongoose } = require("mongoose");
+const Wallet = require("./models/wallet");
+const getWalletBalance = require("./utils/getWalletBalance");
+const createNewWallet = require("./utils/newWallet");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,6 +23,20 @@ const client = new Twilio(accountSid, authToken);
 
 // console.log(accountSid, authToken);
 const whatsappNumber = "whatsapp:+14155238886"; // Your Twilio WhatsApp number
+const connection = new solanaWeb3.Connection(
+  solanaWeb3.clusterApiUrl("mainnet-beta"),
+  "confirmed"
+);
+
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 20000,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // Example route for incoming messages
 app.post("/webhook", async (req, res) => {
@@ -27,12 +47,47 @@ app.post("/webhook", async (req, res) => {
   console.log(`Message received: ${incomingMessage} from ${fromNumber}`);
 
   let responseMessage;
+  let wallet;
+  let walletAddress;
 
   if (incomingMessage.includes("create")) {
-    const wallet = ethers.Wallet.createRandom(); // Create a new wallet
-    responseMessage = `Wallet created! Address: ${wallet.address}\nPrivate Key: ${wallet.privateKey}`;
+    const userId = fromNumber;
+    wallet = Keypair.generate(); // Create a new Solana wallet
+    // wallet = ethers.Wallet.createRandom(); // Create a new evm wallet
+    // responseMessage = `Wallet created! Address: \n\n${wallet.address}\nPrivate Key: ${wallet.privateKey}`; // for evm
+    const newWalletInstance = createNewWallet(userId, wallet);
+    await newWalletInstance
+      .save()
+      .then(() => {
+        responseMessage = `Wallet created! Address: \n\n${wallet.publicKey.toString()}\nPrivate Key: ${wallet.secretKey.toString()}`; // for solana
+      })
+      .catch((err) => {
+        responseMessage = `Error creating wallet: ${err.message}`;
+      });
   } else if (incomingMessage.includes("wallet")) {
-    responseMessage = `Wallet address: ${wallet.address}`;
+    const userId = fromNumber; // Use the user's phone number to find their wallet
+    const walletData = await Wallet.findOne({ userId: userId });
+    if (walletData) {
+      walletAddress = walletData.publicKey;
+      responseMessage = `Wallet address: ${walletAddress}`;
+    } else {
+      responseMessage = `No wallet found. Please create a wallet first by prompting "create"`;
+    }
+  } else if (incomingMessage.includes("balance")) {
+    const userId = fromNumber; // Use the user's phone number to find their wallet
+    const walletData = await Wallet.findOne({ userId: userId });
+
+    if (walletData) {
+      try {
+        walletAddress = walletData.publicKey;
+        const balance = await getWalletBalance(walletAddress);
+        responseMessage = `Wallet balance: ${balance} SOL`;
+      } catch (error) {
+        responseMessage = `Error fetching balance: ${error.message}`;
+      }
+    } else {
+      responseMessage = `No wallet found. Please create a wallet first by prompting "create"`;
+    }
   } else if (incomingMessage.includes("token")) {
     const tokenAddress = incomingMessage.split(" ")[1];
     const fetchTokenDetails = require("./utils/fetchTokenDetails");
@@ -66,7 +121,8 @@ app.post("/webhook", async (req, res) => {
       responseMessage = `Error fetching token details: ${error.message}`;
     }
   } else {
-    responseMessage = 'Unknown command. Please use "create", "buy", or "sell".';
+    responseMessage =
+      'Unknown command. Please use "create", "token <token address>", "balance", or "wallet".';
   }
 
   // Send a response back to the user
