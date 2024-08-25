@@ -37,7 +37,17 @@ app.post("/webhook", async (req, res) => {
     const fetchTokenDetails = require("./utils/fetchTokenDetails");
     try {
       const tokenDetails = await fetchTokenDetails(tokenAddress);
-      responseMessage = `Token Details:\n${JSON.stringify(tokenDetails, null, 2)}`;
+      const {
+        name,
+        symbol,
+        price,
+        volume,
+        liquidity,
+        chain,
+        marketCap,
+        volumeUsd24h,
+      } = tokenDetails;
+      responseMessage = `Token Details:\nName: ${name}\nSymbol: ${symbol}\nPrice: ${price}\nVolume: ${volume}\nLiquidity: ${liquidity}\nChain: ${chain}\nMarket Cap: ${marketCap}\nVolume 24h: ${volumeUsd24h}`;
     } catch (error) {
       responseMessage = `Error fetching token details: ${error.message}`;
     }
