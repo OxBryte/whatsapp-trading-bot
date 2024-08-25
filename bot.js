@@ -47,8 +47,26 @@ app.post("/webhook", async (req, res) => {
   console.log(`Message received: ${incomingMessage} from ${fromNumber}`);
 
   let responseMessage;
+  let walletData = await Wallet.findOne({ userId: fromNumber });
   let wallet;
   let walletAddress;
+
+  // Check if the user is new
+  if (!walletData) {
+    responseMessage = `Welcome! Here are the commands you can use:\n
+    1. **create** - Create a new wallet.\n
+    2. **wallet** - Check your wallet details.\n
+    3. **balance** - Check your wallet balance.\n
+    4. **token <token address>** - Get details about a specific token.\n
+    \nFeel free to ask if you have any questions!`;
+
+    // Send the welcome message
+    await client.messages.create({
+      body: responseMessage,
+      from: whatsappNumber,
+      to: fromNumber,
+    });
+  }
 
   if (incomingMessage.includes("create")) {
     const userId = fromNumber;
@@ -65,7 +83,7 @@ app.post("/webhook", async (req, res) => {
       });
   } else if (incomingMessage.includes("wallet")) {
     const userId = fromNumber; // Use the user's phone number to find their wallet
-    const walletData = await Wallet.findOne({ userId: userId });
+    walletData = await Wallet.findOne({ userId: userId });
     if (walletData) {
       walletAddress = walletData.publicKey;
       const balance = await getWalletBalance(walletAddress);
@@ -75,7 +93,7 @@ app.post("/webhook", async (req, res) => {
     }
   } else if (incomingMessage.includes("balance")) {
     const userId = fromNumber; // Use the user's phone number to find their wallet
-    const walletData = await Wallet.findOne({ userId: userId });
+    walletData = await Wallet.findOne({ userId: userId });
 
     if (walletData) {
       try {
