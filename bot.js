@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Twilio = require('twilio');
 const axios = require('axios');
+const { ethers } = require('ethers'); // Add this line to import ethers
 require('dotenv').config();
 
 const app = express();
@@ -26,14 +27,17 @@ app.post('/webhook', async (req, res) => {
 
     let responseMessage;
 
-    if (incomingMessage.includes('buy')) {
+    if (incomingMessage.includes('create')) {
+        const wallet = ethers.Wallet.createRandom(); // Create a new wallet
+        responseMessage = `Wallet created! Address: ${wallet.address}\nPrivate Key: ${wallet.privateKey}`;
+    } else if (incomingMessage.includes('buy')) {
         const response = await executeTrade('buy');
         responseMessage = `Trade executed: ${response}`;
     } else if (incomingMessage.includes('sell')) {
         const response = await executeTrade('sell');
         responseMessage = `Trade executed: ${response}`;
     } else {
-        responseMessage = 'Unknown command. Please use "buy" or "sell".';
+        responseMessage = 'Unknown command. Please use "create", "buy", or "sell".';
     }
 
     // Send a response back to the user
