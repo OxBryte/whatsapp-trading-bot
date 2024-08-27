@@ -21,7 +21,6 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = new Twilio(accountSid, authToken);
 
-// console.log(accountSid, authToken);
 const whatsappNumber = "whatsapp:+14155238886"; // Your Twilio WhatsApp number
 const connection = new solanaWeb3.Connection(
   solanaWeb3.clusterApiUrl("mainnet-beta"),
